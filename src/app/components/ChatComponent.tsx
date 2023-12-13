@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatContent, { Message } from "./ChatContent";
 import ContentEditable from "react-contenteditable";
 import SuggestionsComponent from "./SuggestionsComponent";
@@ -130,9 +130,7 @@ const getChatFromLocalStorage = () => {
 };
 
 export default function ChatComponent() {
-    const [chat, setChat] = useState<Message[]>(
-        () => getChatFromLocalStorage() ?? [DUMMY_CHAT[0], DUMMY_CHAT[1]]
-    );
+    const [chat, setChat] = useState<Message[]>([DUMMY_CHAT[0], DUMMY_CHAT[1]]);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
     const [message, setMessage] = useState("");
@@ -165,6 +163,11 @@ export default function ChatComponent() {
         setLoadingBotResponse(false);
         pushChat(DUMMY_CHAT[2].text, "bot");
     };
+
+    useEffect(() => {
+        const chat = getChatFromLocalStorage();
+        if (chat) setChat(chat);
+    }, []);
 
     return (
         <div className="flex fixed bottom-8 right-8 flex-col items-end ">
