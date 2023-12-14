@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import ChatContent, { Message } from "./ChatContent";
-import ContentEditable from "react-contenteditable";
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import SuggestionsComponent from "./SuggestionsComponent";
+import { removeHtmlTags, replaceBreakTags } from "../common/stringParser";
 
 const ChatIcon = () => (
     <svg
@@ -137,10 +138,11 @@ export default function ChatComponent() {
     const [loadingBotResponse, setLoadingBotResponse] = useState(false);
 
     const pushChat = (text: string, sender: string) => {
+        const formattedString = removeHtmlTags(replaceBreakTags(text));
         setChat((prev) => {
             const newChat = [
                 ...prev,
-                { text, sender, id: `m${prev.length + 1}` },
+                { text: formattedString, sender, id: `m${prev.length + 1}` },
             ];
             saveChatToLocalStorage(newChat);
             return newChat;
@@ -148,10 +150,25 @@ export default function ChatComponent() {
     };
 
     const handleSendMessage = () => {
-        console.log("handleSendMessage");
         if (message === "") return;
         if (loadingBotResponse) return;
+
         pushChat(message, "user");
+        setMessage("");
+        generateReply();
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setMessage(e.target.value);
+        console.log(e.target.cols);
+        // console.log(e);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
     };
 
     const generateReply = async () => {
@@ -191,7 +208,7 @@ export default function ChatComponent() {
                             <CloseIcon />
                         </button>
                     </div>
-                    <div className="mx-2 border-t flex-1 overflow-scroll flex flex-col-reverse">
+                    <div className="mx-2 border-t flex-1 overflow-scroll flex flex-col-reverse no-scrollbar">
                         <ChatContent chat={chat} loading={loadingBotResponse} />
                     </div>
                     <div className="p-2 flex overflow-scroll">
@@ -203,16 +220,23 @@ export default function ChatComponent() {
                             }}
                         />
                     </div>
-                    <div className="border-t flex items-end">
-                        <ContentEditable
-                            onChange={(e) => setMessage(e.target.value)}
-                            html={message}
-                            className="flex-1 resize-none focus:outline-none mr-2 p-4"
-                        />
+                    <div className="border-t flex items-end py-3 px-4">
+                        <div className="flex w-full items-center leading-none">
+                            <textarea
+                                onChange={handleChange}
+                                onKeyDown={handleKeyDown}
+                                value={message}
+                                required
+                                placeholder="Message..."
+                                rows={message.split("\n").length}
+                                maxLength={4000}
+                                tabIndex={0}
+                                className="mr-3 max-h-36 w-full resize-none bg-transparent pr-3 leading-[24px] focus:outline-none focus:ring-0  focus-visible:ring-0"
+                            />
+                        </div>
                         <button
                             disabled={loadingBotResponse}
                             onClick={handleSendMessage}
-                            className="m-2"
                         >
                             <SendIcon />
                         </button>
