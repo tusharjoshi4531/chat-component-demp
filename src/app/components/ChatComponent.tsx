@@ -161,6 +161,7 @@ export default function ChatComponent() {
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMessage(e.target.value);
         console.log(e.target.cols);
+        console.log(message.length);
         // console.log(e);
     };
 
@@ -228,7 +229,7 @@ export default function ChatComponent() {
                                 value={message}
                                 required
                                 placeholder="Message..."
-                                rows={message.split("\n").length}
+                                rows={1}
                                 maxLength={4000}
                                 tabIndex={0}
                                 className="mr-3 max-h-36 w-full resize-none bg-transparent pr-3 leading-[24px] focus:outline-none focus:ring-0  focus-visible:ring-0"
