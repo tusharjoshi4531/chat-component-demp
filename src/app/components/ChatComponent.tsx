@@ -216,7 +216,7 @@ export default function ChatComponent() {
                     <div className="mx-2 border-t flex-1 overflow-scroll flex flex-col-reverse no-scrollbar">
                         <ChatContent chat={chat} loading={loadingBotResponse} />
                     </div>
-                    <div className="p-2 flex overflow-scroll">
+                    <div className="p-2 flex overflow-scroll no-scrollbar">
                         <SuggestionsComponent
                             suggestions={DUMMY_SUGGESTIONS}
                             onClick={(suggestion) => {
