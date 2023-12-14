@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatContent, { Message } from "./ChatContent";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import SuggestionsComponent from "./SuggestionsComponent";
@@ -134,7 +134,8 @@ export default function ChatComponent() {
     const [chat, setChat] = useState<Message[]>([DUMMY_CHAT[0], DUMMY_CHAT[1]]);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    const [message, setMessage] = useState("");
+    // const [message, setMessage] = useState("");
+    const messageInputRef = useRef<HTMLTextAreaElement>(null!);
     const [loadingBotResponse, setLoadingBotResponse] = useState(false);
 
     const pushChat = (text: string, sender: string) => {
@@ -150,19 +151,14 @@ export default function ChatComponent() {
     };
 
     const handleSendMessage = () => {
+        const message = messageInputRef.current.value;
         if (message === "") return;
         if (loadingBotResponse) return;
 
         pushChat(message, "user");
-        setMessage("");
+        messageInputRef.current.value = "";
+        messageInputRef.current.style.height = "auto";
         generateReply();
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setMessage(e.target.value);
-        console.log(e.target.cols);
-        console.log(message.length);
-        // console.log(e);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -180,6 +176,14 @@ export default function ChatComponent() {
 
         setLoadingBotResponse(false);
         pushChat(DUMMY_CHAT[2].text, "bot");
+    };
+
+    const handleMessageInputChange = (
+        e: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        e.target.style.height = "auto";
+        const scrollHeight = e.target.scrollHeight.toString() + "px";
+        e.target.style.height = scrollHeight;
     };
 
     useEffect(() => {
@@ -224,9 +228,9 @@ export default function ChatComponent() {
                     <div className="border-t flex items-end py-3 px-4">
                         <div className="flex w-full items-center leading-none">
                             <textarea
-                                onChange={handleChange}
                                 onKeyDown={handleKeyDown}
-                                value={message}
+                                onChange={handleMessageInputChange}
+                                ref={messageInputRef}
                                 required
                                 placeholder="Message..."
                                 rows={1}
