@@ -139,6 +139,7 @@ export default function ChatComponent() {
     const [loadingBotResponse, setLoadingBotResponse] = useState(false);
 
     const pushChat = (text: string, sender: string) => {
+        DUMMY_CHAT[2].text = text;
         const formattedString = removeHtmlTags(replaceBreakTags(text));
         setChat((prev) => {
             const newChat = [
@@ -152,6 +153,7 @@ export default function ChatComponent() {
 
     const handleSendMessage = () => {
         const message = messageInputRef.current.value;
+
         if (message === "") return;
         if (loadingBotResponse) return;
 
